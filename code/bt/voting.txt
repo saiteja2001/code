@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.4.25;
+pragma experimental ABIEncoderV2;
+
+contract Election {
+    struct Candidate {
+        uint id;
+        string name;
+        uint vote_count;
+    }
+
+    struct Voter {
+        uint voter_id;
+        uint cand_id;
+    }
+
+    Candidate[] all_candidates;
+    Voter[] all_voters;
+
+    function add_candidate(uint id, string name) public {
+        all_candidates.push(Candidate(id, name, 0));
+    }
+
+    function vote(uint voter_id, uint cand_id) public {
+        for (uint i = 0; i < all_candidates.length; i++) {
+            if (all_candidates[i].id == cand_id) {
+                all_candidates[i].vote_count += 1;
+                break;
+            }
+        }
+        all_voters.push(Voter(voter_id, cand_id));
+    }
+
+    function getResult() public view returns (uint[] memory, string[] memory, uint[] memory) {
+        uint[] memory id = new uint[](all_candidates.length);
+        string[] memory name = new string[](all_candidates.length);
+        uint[] memory vote_count = new uint[](all_candidates.length);
+
+        for(uint i = 0; i < all_candidates.length; i++) {
+            id[i] = all_candidates[i].id;
+            name[i] = all_candidates[i].name;
+            vote_count[i] = all_candidates[i].vote_count;
+        }
+
+        return (id, name, vote_count);
+    }
+
+    function winnerElection() public view returns (Candidate memory) {
+        uint max = 0;
+        uint ind = 0;
+        for (uint i = 0; i < all_candidates.length; i++) {
+            if (all_candidates[i].vote_count > max) {
+                ind = i;
+                max = all_candidates[i].vote_count;
+            }
+        }
+
+        return all_candidates[ind];
+    }
+}
